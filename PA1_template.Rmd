@@ -9,7 +9,7 @@ output:
 ## Loading and preprocessing the data
 
 ```{r echo=TRUE}
-activity.data<-read.table(file="C:./activity.csv",header=TRUE, sep=",")
+activity.data<-read.table(file="./activity.csv",header=TRUE, sep=",")
 ```
 
 
