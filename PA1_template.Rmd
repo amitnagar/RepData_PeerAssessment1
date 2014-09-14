@@ -9,8 +9,7 @@ output:
 ## Loading and preprocessing the data
 
 ```{r echo=TRUE}
-setwd("C:\\Users\\I013285\\Documents\\GitHub\\RepData_PeerAssessment1")
-activity.data<-read.table(file="C:\\Users\\I013285\\Documents\\Amit\\CourseraR\\ReproducibleResearch\\Week2\\PA1\\activity.csv",header=TRUE, sep=",")
+activity.data<-read.table(file="C:./activity.csv",header=TRUE, sep=",")
 ```
 
 
