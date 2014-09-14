@@ -8,18 +8,136 @@ output:
 
 ## Loading and preprocessing the data
 
+```{r echo=TRUE}
+setwd("C:\\Users\\I013285\\Documents\\GitHub\\RepData_PeerAssessment1")
+activity.data<-read.table(file="C:\\Users\\I013285\\Documents\\Amit\\CourseraR\\ReproducibleResearch\\Week2\\PA1\\activity.csv",header=TRUE, sep=",")
+```
 
 
 ## What is mean total number of steps taken per day?
+```{r echo=TRUE}
+hist(activity.data$steps,main='Number of Steps',xlab='Steps')
+```
 
+Remove rows with NA values in steps column and calculate the mean and meedian
+```{r echo=TRUE}
+activity.data.nona<-na.omit(activity.data)
+```
 
+Mean:
+```{r echo=TRUE}
+mean(activity.data.nona$steps)
+```
+
+Median:
+```{r echo=TRUE}
+median(activity.data.nona$steps)
+```
 
 ## What is the average daily activity pattern?
+First sort the data frame by Steps
+```{r echo=TRUE}
+activity.data.sorted<-activity.data[order(activity.data[,3]),]
+```
 
+```{r echo=TRUE}
+avg.daily.pattern<-tapply(activity.data.nona$steps, activity.data.nona$interval, mean)
+plot(names(avg.daily.pattern), avg.daily.pattern, type='l')
+```
 
+Time interval with maximum steps
+```{r echo=TRUE}
+df<-as.data.frame(avg.daily.pattern)
+time.interval.with.maxSteps<-subset(df,df$avg.daily.pattern == apply(df, 2, max))
+time.interval.with.maxSteps
+```
 
 ## Imputing missing values
+Number of NAs:
+```{r echo=TRUE}
+num.na<-length(which(is.na(activity.data$steps)))
+#num.na<-dim(activity.data)
+num.na
+```
+
+NA handling Strategy:
+Use the average value for the various 5-second intervals over the 2 month data collection period.
+The data frame of such values avg.daily.pattern has already been created previously.
+
+using the above strategy we will create a new data frame that substitutes the NA values with the average values.  
+
+Activity Data : Before 
+```{r echo=TRUE}
+head(activity.data)
+```
+
+Apply NA handling strategy
+```{r echo=TRUE}
+
+for (i in 1:dim(activity.data)[1]) {
+  if(is.na(activity.data[i,1])){ 
+    row<-as.character(activity.data[i,3])
+    activity.data[i,1]<-data.frame(avg.daily.pattern[row])[,]
+  }
+}
+```
+
+Note: Average values per interval/across days is as follows:
+```{r echo=TRUE}
+head(avg.daily.pattern)
+```
+
+Activity Data : After
+```{r echo=TRUE}
+head(activity.data)
+```
 
 
+Histogram, Mean, Media using the imputed data
+## What is mean total number of steps taken per day?
+```{r echo=TRUE}
+hist(activity.data$steps,main='Number of Steps',xlab='Steps')
+```
+
+Mean:
+```{r echo=TRUE}
+mean(activity.data$steps)
+```
+
+Median:
+```{r echo=TRUE}
+median(activity.data$steps)
+```
+Answer: Surpisingly, no changes in mean and median values after imputing the dataset.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Uses library(chron)
+```{r echo=TRUE}
+library(chron)
+activity.data$weekend<-is.weekend(as.Date(activity.data[,2]))
+#factor(activity.data$weekend)
+```
+
+Plot panels for weekend/weekday
+
+```{r echo=TRUE}
+
+mf_labeller <- function(var, value){
+    value <- as.character(value)
+    value[value=="FALSE"] <- "Weekday"
+    value[value=="TRUE"]   <- "Weekend"
+    return(value)
+}
+
+library(ggplot2)
+
+#png(filename = "./instructions_fig/panelplot.png", width = 480, height = 480)
+
+g<-ggplot(activity.data, aes(x=interval, y=steps), xlab='Time Interval',ylab='Steps') 
+
+#add layers
+g + geom_point(size=1)  + facet_grid(.~weekend, labeller=mf_labeller) + geom_line(colour="red")
+
+ 
+```
